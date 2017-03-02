@@ -8,12 +8,12 @@ If you dont know much about pub sub pattern, below is the short description.
     2. Publisher will publish an event with data.  
     3. All the subscribers who are listening to that event will get the data published by   publisher.  
 
-Here is the initial implementation of pubSub pattern, however there is a gotcha in that.  
-Below code enables us to listen for the message one time. 
-If we listen multiple times the last one will replace the existing listener, since we are using object.
+Here is the initial implementation of pubSub pattern. It will enables us to subscribe for the event and publish the event, however there is a gotcha in that.  
+Below code enables us to listen for the message one when you subscribe first time. 
+When we listen multiple times, it is skipping remaining subscribers because we are checking if the event exists in our object.
 
+## Version 1
 ```javascript  
-
 var pubSub = (function() {
     var messages = {};
 
@@ -37,3 +37,37 @@ var pubSub = (function() {
 }());
 ```
 
+---
+Since **version 1** will allow us to subscribe one time only I added an array so that it allows multiple subscribers.  
+
+Here I changed two things:  
+1. In `listen` I am checking if the message exists in our Object, if true we are simply pushing the listener function else we are assigning an array.  
+2. In `trigger` instead of directly executing the listener function I'm iterating over given event subscribers and then executing the listners.
+
+## Version 2
+```javascript  
+var pubSub = (function() {
+    var messages = {};
+
+    function listen(message, listenerFn) {
+        if (!messages[message]) {
+            messages[message] = [];
+        }
+        messages[message].push(listenerFn);
+    }
+
+    function trigger(message, data) {
+        if (!messages[message]) {
+            return
+        }
+        messages[message].forEach(function(listner) {
+            listner(data);
+        });
+    }
+
+    return {
+        publish: trigger,
+        subscribe: listen
+    };
+}());
+```
