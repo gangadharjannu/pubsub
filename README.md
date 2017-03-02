@@ -47,10 +47,11 @@ Here I changed two things:
 ## Version 2
 ```javascript  
 var pubSub = (function() {
-    var messages = {};
+    var messages = {},
+        hasOwnProp = Object.prototype.hasOwnProperty;
 
     function listen(message, listenerFn) {
-        if (!messages[message]) {
+        if (!hasOwnProp.call(messages, message)) {
             messages[message] = [];
         }
         messages[message].push(listenerFn);
