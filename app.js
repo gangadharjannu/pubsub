@@ -3,15 +3,18 @@ var pubSub = (function() {
 
 	function listen(message, listenerFn) {
 		if (!messages[message]) {
-			messages[message] = listenerFn;
+			messages[message] = [];
 		}
+		messages[message].push(listenerFn);
 	}
 
 	function trigger(message, data) {
 		if (!messages[message]) {
 			return
 		}
-		messages[message](data);
+		messages[message].forEach(function(listner) {
+			listner(data);
+		});
 	}
 
 	return {
